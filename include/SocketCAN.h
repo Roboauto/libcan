@@ -58,7 +58,7 @@ class SocketCAN: public CANAdapter
     /**
      * Open and bind socket
      */
-    void open(char*);
+    void open(const char*);
 
     /**
      * Close and unbind socket

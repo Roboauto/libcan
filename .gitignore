@@ -15,3 +15,6 @@ test-pcan.exe
 .project
 .cproject
 .metadata
+
+cmake-build-*
+.idea

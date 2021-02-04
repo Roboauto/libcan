@@ -6,7 +6,6 @@
 // uintxx_t
 #include <stdint.h>
 #include <SocketCAN.h>
-#include <SLCAN.h>
 
 #include <iostream>
 
@@ -44,30 +43,6 @@ static void test_socketcan()
 
     delete adapter;
     sleep(1.1);
-}
-
-
-static void test_slcan()
-{
-    printf("\nTesting SLCAN adapter\n");
-    printf("#############################\n");
-
-    SLCAN* adapter = new SLCAN();
-    adapter->open("/dev/ttyCANtact");
-
-    adapter->reception_handler = &rx_handler;
-
-    sleep(3);
-
-    can_frame_t frame;
-    frame.can_id = 0x123;
-    frame.can_dlc = 3;
-    frame.data[0] = 1;
-    frame.data[1] = 2;
-    frame.data[2] = 3;
-    adapter->transmit(&frame);
-
-    delete adapter;
 }
 
 

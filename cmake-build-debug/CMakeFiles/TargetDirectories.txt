@@ -1,2 +1,0 @@
-/home/robo/Documents/attempts/libcan/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/robo/Documents/attempts/libcan/cmake-build-debug/CMakeFiles/edit_cache.dir
