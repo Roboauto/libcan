@@ -5,12 +5,12 @@
 #include <stdio.h>
 // uintxx_t
 #include <stdint.h>
-#include <SocketCAN.h>
+#include <libcan/SocketCAN.h>
 
 #include <iostream>
 
 
-void rx_handler(can_frame_t* frame)
+void rx_handler(libcan::can_frame_t* frame)
 {
     // TODO: Do something here with the received frame
     std::cout << std::hex << frame->can_id << " ";
@@ -26,14 +26,14 @@ static void test_socketcan()
     printf("\nTesting SocketCAN adapter\n");
     printf("#############################\n");
 
-    SocketCAN* adapter = new SocketCAN();
+    auto* adapter = new libcan::SocketCAN();
     adapter->open("can0");
 
     adapter->reception_handler = &rx_handler;
 
     sleep(3);
 
-    can_frame_t frame;
+    libcan::can_frame_t frame;
     frame.can_id = 0x123;
     frame.can_dlc = 3;
     frame.data[0] = 1;
@@ -49,7 +49,5 @@ static void test_socketcan()
 int main()
 {
     test_socketcan();
-    //test_slcan();
-
     return 0;
 }
