@@ -3,7 +3,4 @@
 
 #include <Vector/XLDriverLibrary/VectorCANAdapter.h>
 
-
-
-
 #endif

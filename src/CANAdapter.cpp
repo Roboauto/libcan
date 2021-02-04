@@ -8,14 +8,10 @@ CANAdapter::CANAdapter()
      reception_handler(NULL),
      parser(NULL)
 {
-    printf("CAN adapter created.\n");
 }
 
 
-CANAdapter::~CANAdapter()
-{
-    printf("Destroying CAN adapter...\n");
-}
+CANAdapter::~CANAdapter() {}
 
 
 void CANAdapter::transmit(can_frame_t*)
@@ -25,5 +21,4 @@ void CANAdapter::transmit(can_frame_t*)
         printf("Unable to send: Unspecified CAN adapter\n");
         return;
     }
-    printf("Transmitting frame...\n");
 }

@@ -1,0 +1,5 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.19)
+PROJECT(libcanExample CXX)
+
+ADD_EXECUTABLE(libcanExample test.cpp)
+TARGET_LINK_LIBRARIES(libcanExample libcan)

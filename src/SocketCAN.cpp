@@ -36,13 +36,11 @@ SocketCAN::SocketCAN()
     receiver_thread_id(0)
 {
     adapter_type = ADAPTER_SOCKETCAN;
-    printf("SocketCAN adapter created.\n");
 }
 
 
 SocketCAN::~SocketCAN()
 {
-    printf("Destroying SocketCAN adapter...\n");
     if (this->is_open())
     {
         this->close();
@@ -50,7 +48,7 @@ SocketCAN::~SocketCAN()
 }
 
 
-void SocketCAN::open(char* interface)
+void SocketCAN::open(const char* interface)
 {
     // Request a socket
     sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
@@ -59,19 +57,16 @@ void SocketCAN::open(char* interface)
         printf("Error: Unable to create a CAN socket\n");
         return;
     }
-    printf("Created CAN socket with descriptor %d.\n", sockfd);
 
     // Get the index of the network interface
     strncpy(if_request.ifr_name, interface, IFNAMSIZ);
     if (ioctl(sockfd, SIOCGIFINDEX, &if_request) == -1)
     {
         printf("Unable to select CAN interface %s: I/O control error\n", interface);
-
         // Invalidate unusable socket
         close();
         return;
     }
-    printf("Found: %s has interface index %d.\n", interface, if_request.ifr_ifindex);
 
     // Bind the socket to the network interface
     addr.can_family = AF_CAN;
@@ -84,13 +79,10 @@ void SocketCAN::open(char* interface)
     if (rc == -1)
     {
         printf("Failed to bind socket to network interface\n");
-
         // Invalidate unusable socket
         close();
         return;
     }
-    printf("Successfully bound socket to interface %d.\n", if_request.ifr_ifindex);
-
     // Start a separate, event-driven thread for frame reception
     start_receiver_thread();
 }
@@ -106,8 +98,6 @@ void SocketCAN::close()
     // Close the file descriptor for our socket
     ::close(sockfd);
     sockfd = -1;
-
-    printf("CAN socket destroyed.\n");
 }
 
 
@@ -158,7 +148,6 @@ static void* socketcan_receiver_thread(void* argv)
         FD_ZERO(&descriptors);
         // Add socket descriptor
         FD_SET(sock->sockfd, &descriptors);
-//        printf("Added %d to monitored descriptors.\n", sock->sockfd);
 
         // Set timeout
         timeout.tv_sec  = 1;
@@ -167,10 +156,7 @@ static void* socketcan_receiver_thread(void* argv)
         // Wait until timeout or activity on any descriptor
         if (select(maxfd+1, &descriptors, NULL, NULL, &timeout) == 1)
         {
-//            printf("Something happened.\n");
-            int len = read(sock->sockfd, &rx_frame, CAN_MTU);
-//            printf("Received %d bytes: Frame from 0x%0X, DLC=%d\n", len, rx_frame.can_id, rx_frame.can_dlc);
-
+            ssize_t len = read(sock->sockfd, &rx_frame, CAN_MTU);
             if (len < 0)
                 continue;
 
@@ -181,23 +167,10 @@ static void* socketcan_receiver_thread(void* argv)
 
             if (sock->parser != NULL)
             {
-//                printf("Invoking parser...\n");
                 sock->parser->parse_frame(&rx_frame);
             }
-            else
-            {
-//                printf("sock->parser is NULL.\n");
-            }
-        }
-        else
-        {
-//            printf("Received nothing.\n");
         }
     }
-
-    printf("Receiver thread terminated.\n");
-
-    // Thread terminates
     return NULL;
 }
 
@@ -216,7 +189,6 @@ void SocketCAN::start_receiver_thread()
         printf("Unable to start receiver thread.\n");
         return;
     }
-    printf("Successfully started receiver thread with ID %d.\n", (int) receiver_thread_id);
 }
 
 #endif

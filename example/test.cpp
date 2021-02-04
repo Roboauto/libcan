@@ -8,14 +8,21 @@
 #include <SocketCAN.h>
 #include <SLCAN.h>
 
+#include <iostream>
+
 
 void rx_handler(can_frame_t* frame)
 {
     // TODO: Do something here with the received frame
+    std::cout << std::hex << frame->can_id << " ";
+    for(int i = 0; i < 8; i++) {
+      printf("%02X ", static_cast<uint32_t>(frame->data[i]));
+    }
+    std::cout << std::endl;
 }
 
 
-void test_socketcan()
+static void test_socketcan()
 {
     printf("\nTesting SocketCAN adapter\n");
     printf("#############################\n");
@@ -40,7 +47,7 @@ void test_socketcan()
 }
 
 
-void test_slcan()
+static void test_slcan()
 {
     printf("\nTesting SLCAN adapter\n");
     printf("#############################\n");
@@ -67,7 +74,7 @@ void test_slcan()
 int main()
 {
     test_socketcan();
-    test_slcan();
+    //test_slcan();
 
     return 0;
 }
