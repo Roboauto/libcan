@@ -2,10 +2,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.19)
 PROJECT(libcan CXX)
 
 SET(INCLUDE_FILES
-	include/CANFrameParser.h
-	include/SocketCAN.h
-	include/CANFrame.h
-	include/CANAdapter.h
+	include/libcan/CANFrameParser.h
+	include/libcan/SocketCAN.h
+	include/libcan/CANFrame.h
+	include/libcan/CANAdapter.h
 )
 
 SET(SOURCE_FILES

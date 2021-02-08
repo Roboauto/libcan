@@ -4,7 +4,7 @@
  * to facilitates frame transmission and reception.
  */
 
-#if (!defined(SOCKETCAN_H)) && (!defined(MINGW))
+#ifndef SOCKETCAN_H
 #define SOCKETCAN_H
 
 #include <libcan/CANAdapter.h>
@@ -14,6 +14,7 @@
 #include <net/if.h>
 // Multi-threading
 #include <pthread.h>
+#include <atomic>
 
 namespace libcan {
 
@@ -49,7 +50,7 @@ namespace libcan {
       /**
        * Request for the child thread to terminate
        */
-      bool terminate_receiver_thread = false;
+      std::atomic_bool terminate_receiver_thread;
 
       /** Constructor */
       SocketCAN();
@@ -58,13 +59,15 @@ namespace libcan {
 
       /**
        * Open and bind socket
+       * @return true - open succeed, false - open failed
        */
-      void open(const char*);
+      bool open(const char*);
 
       /**
        * Close and unbind socket
+       * @return true - close succeed, false - close failed
        */
-      void close();
+      bool close();
 
       /**
        * Returns whether the socket is open or closed

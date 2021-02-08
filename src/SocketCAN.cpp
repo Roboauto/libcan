@@ -21,7 +21,8 @@ namespace libcan {
   SocketCAN::SocketCAN()
      :CANAdapter(),
       sockfd(-1),
-      receiver_thread_id(0)
+      receiver_thread_id(0),
+      terminate_receiver_thread(false)
   {
       adapter_type = ADAPTER_SOCKETCAN;
   }
@@ -36,14 +37,14 @@ namespace libcan {
   }
 
 
-  void SocketCAN::open(const char* interface)
+  bool SocketCAN::open(const char* interface)
   {
       // Request a socket
       sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
       if (sockfd == -1)
       {
           printf("Error: Unable to create a CAN socket\n");
-          return;
+          return false;
       }
 
       // Get the index of the network interface
@@ -53,7 +54,7 @@ namespace libcan {
           printf("Unable to select CAN interface %s: I/O control error\n", interface);
           // Invalidate unusable socket
           close();
-          return;
+          return false;
       }
 
       // Bind the socket to the network interface
@@ -69,19 +70,21 @@ namespace libcan {
           printf("Failed to bind socket to network interface\n");
           // Invalidate unusable socket
           close();
-          return;
+          return false;
       }
       // Start a separate, event-driven thread for frame reception
       start_receiver_thread();
+
+      return true;
   }
 
 
-  void SocketCAN::close()
+  bool SocketCAN::close()
   {
       terminate_receiver_thread = true;
 
       if (!is_open())
-          return;
+          return false;
 
       // Close the file descriptor for our socket
       ::close(sockfd);
@@ -124,10 +127,10 @@ namespace libcan {
       int maxfd = sock->sockfd;
 
       // How long 'select' shall wait before returning with timeout
-      struct timeval timeout;
+      timeval timeout {};
 
       // Buffer to store incoming frame
-      can_frame_t rx_frame;
+      can_frame_t rx_frame {};
 
       // Run until termination signal received
       while (!sock->terminate_receiver_thread)
@@ -142,7 +145,7 @@ namespace libcan {
           timeout.tv_usec = 0;
 
           // Wait until timeout or activity on any descriptor
-          if (select(maxfd+1, &descriptors, NULL, NULL, &timeout) == 1)
+          if (select(maxfd+1, &descriptors, NULL, NULL, &timeout) != -1)
           {
               ssize_t len = read(sock->sockfd, &rx_frame, CAN_MTU);
               if (len < 0)
