@@ -4,16 +4,12 @@
  * to facilitates frame transmission and reception.
  */
 
-#ifndef SOCKETCAN_H
-#define SOCKETCAN_H
+#pragma once
 
 #include <libcan/CANAdapter.h>
 #include <libcan/CANFrame.h>
-#include <stdbool.h>
-// IFNAMSIZ, ifreq
 #include <net/if.h>
-// Multi-threading
-#include <pthread.h>
+#include <thread>
 #include <atomic>
 
 namespace libcan {
@@ -21,25 +17,29 @@ namespace libcan {
   /**
    * Interface request structure used for socket ioctl's
    */
-  typedef struct ifreq interface_request_t;
+  using interface_request_t = ifreq;
 
   /**
    * Socket address type for CAN sockets
    */
-  typedef struct sockaddr_can can_socket_address_t;
+  using can_socket_address_t = sockaddr_can;
 
 
   /**
    * Facilitates frame transmission and reception via a CAN adapter
    */
-  class SocketCAN: public CANAdapter
-  {
+  class SocketCAN: public CANAdapter {
     private:
       interface_request_t if_request;
 
       can_socket_address_t addr;
 
-      pthread_t receiver_thread_id;
+      std::thread receiver_thread;
+
+      /**
+       * Starts a new thread, that will wait for socket events
+       */
+      void start_receiver_thread();
 
     public:
       /**
@@ -82,13 +82,6 @@ namespace libcan {
        * Sends the referenced frame to the bus
        */
       void transmit(can_frame_t*);
-
-      /**
-       * Starts a new thread, that will wait for socket events
-       */
-      void start_receiver_thread();
   };
 
 }
-
-#endif

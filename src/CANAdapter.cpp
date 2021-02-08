@@ -1,18 +1,16 @@
 
 #include <libcan/CANAdapter.h>
-#include <stdio.h>
+#include <cstdio>
 
 
 namespace libcan {
 
   CANAdapter::CANAdapter()
       :adapter_type(ADAPTER_NONE),
-       reception_handler(NULL),
-       parser(NULL)
+       reception_handler(nullptr),
+       error_handler(nullptr)
   {
   }
-
-  CANAdapter::~CANAdapter() {}
 
   void CANAdapter::transmit(can_frame_t*)
   {

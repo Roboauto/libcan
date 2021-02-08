@@ -4,16 +4,15 @@
  * to facilitate frame transmission and reception.
  */
 
-#ifndef CAN_ADAPTER_H
-#define CAN_ADAPTER_H
+#pragma once
 
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 
 #include <libcan/CANFrame.h>
-#include <libcan/CANFrameParser.h>
 
 #include <functional>
+#include <memory>
 
 
 namespace libcan {
@@ -36,7 +35,6 @@ namespace libcan {
    */
   using error_handler_handler_t = std::function<void(can_frame_t*, error_t)>;
 
-
   /**
    * Facilitates frame transmission and reception via a CAN adapter
    */
@@ -57,23 +55,13 @@ namespace libcan {
        */
       error_handler_handler_t error_handler;
 
+    CANAdapter();
+    virtual ~CANAdapter() = default;
+
       /**
-       * Pointer to a CAN frame parser object
-       * which's parse_frame() method will be called when frames are received
+       * Sends the referenced frame to the bus
        */
-      CANFrameParser* parser = NULL;
-
-      /** Constructor */
-          CANAdapter();
-          /** Destructor */
-          virtual ~CANAdapter();
-
-          /**
-           * Sends the referenced frame to the bus
-           */
-          virtual void transmit(can_frame_t*);
+      virtual void transmit(can_frame_t*);
   };
 
 }
-
-#endif

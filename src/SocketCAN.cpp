@@ -20,8 +20,10 @@ namespace libcan {
 
   SocketCAN::SocketCAN()
      :CANAdapter(),
+      if_request(),
+      addr(),
+      receiver_thread(),
       sockfd(-1),
-      receiver_thread_id(0),
       terminate_receiver_thread(false)
   {
       adapter_type = ADAPTER_SOCKETCAN;
@@ -82,14 +84,15 @@ namespace libcan {
   bool SocketCAN::close()
   {
       terminate_receiver_thread = true;
-
       if (!is_open()) {
           return false;
       }
 
       // Close the file descriptor for our socket
+      receiver_thread.join();
       ::close(sockfd);
       sockfd = -1;
+
       return true;
   }
 
@@ -120,7 +123,7 @@ namespace libcan {
        * The first and only argument to this function
        * is the pointer to the object, which started the thread.
        */
-      SocketCAN* sock = (SocketCAN*) argv;
+      auto* sock = static_cast<SocketCAN*>(argv);
 
       // Holds the set of descriptors, that 'select' shall monitor
       fd_set descriptors;
@@ -156,16 +159,13 @@ namespace libcan {
                   }
                   continue;
               }
-
-              if (sock->reception_handler)
-              {
+              if (sock->reception_handler) {
                   sock->reception_handler(&rx_frame);
               }
-
-              if (sock->parser)
-              {
-                  sock->parser->parse_frame(&rx_frame);
-              }
+              continue;
+          }
+          if(sock->error_handler) {
+            sock->error_handler(&rx_frame, errno);
           }
       }
       return NULL;
@@ -174,18 +174,8 @@ namespace libcan {
 
   void SocketCAN::start_receiver_thread()
   {
-      /*
-       * Frame reception is accomplished in a separate, event-driven thread.
-       *
-       * See also: https://www.thegeekstuff.com/2012/04/create-threads-in-linux/
-       */
       terminate_receiver_thread = false;
-      int rc = pthread_create(&receiver_thread_id, NULL, &socketcan_receiver_thread, this);
-      if (rc != 0)
-      {
-          printf("Unable to start receiver thread.\n");
-          return;
-      }
+      receiver_thread = std::thread(&socketcan_receiver_thread, this);
   }
 
 }
