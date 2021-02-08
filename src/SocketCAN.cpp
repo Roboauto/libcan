@@ -5,9 +5,9 @@
  */
 
 #include <libcan/SocketCAN.h>
-#include <stdio.h>
+#include <cstdio>
 // strncpy
-#include <string.h>
+#include <cstring>
 // close
 #include <unistd.h>
 // socket
