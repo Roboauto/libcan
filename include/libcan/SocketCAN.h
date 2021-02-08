@@ -52,20 +52,21 @@ namespace libcan {
        */
       std::atomic_bool terminate_receiver_thread;
 
-      /** Constructor */
       SocketCAN();
-      /** Destructor */
       ~SocketCAN();
 
       /**
        * Open and bind socket
-       * @return true - open succeed, false - open failed
+       * @retval true - open succeed
+       * @retval false - open failed
        */
       bool open(const char*);
 
       /**
        * Close and unbind socket
-       * @return true - close succeed, false - close failed
+       *
+       * @retval true - close succeed
+       * @retval false - close failed
        */
       bool close();
 

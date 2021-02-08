@@ -8,8 +8,12 @@
 #define CAN_ADAPTER_H
 
 #include <unistd.h>
+#include <errno.h>
+
 #include <libcan/CANFrame.h>
 #include <libcan/CANFrameParser.h>
+
+#include <functional>
 
 
 namespace libcan {
@@ -25,7 +29,12 @@ namespace libcan {
   /**
    * How a frame reception handler should look like
    */
-  typedef void (*reception_handler_t)(can_frame_t*);
+  using reception_handler_t = std::function<void(can_frame_t*)>;
+
+  /**
+   * error handler for
+   */
+  using error_handler_handler_t = std::function<void(can_frame_t*, error_t)>;
 
 
   /**
@@ -42,6 +51,11 @@ namespace libcan {
        * when frames are being received from the CAN bus
        */
       reception_handler_t reception_handler;
+
+      /**
+       * Error handler called when the error occurred
+       */
+      error_handler_handler_t error_handler;
 
       /**
        * Pointer to a CAN frame parser object

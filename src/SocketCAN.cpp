@@ -83,12 +83,14 @@ namespace libcan {
   {
       terminate_receiver_thread = true;
 
-      if (!is_open())
+      if (!is_open()) {
           return false;
+      }
 
       // Close the file descriptor for our socket
       ::close(sockfd);
       sockfd = -1;
+      return true;
   }
 
 
@@ -148,15 +150,19 @@ namespace libcan {
           if (select(maxfd+1, &descriptors, NULL, NULL, &timeout) != -1)
           {
               ssize_t len = read(sock->sockfd, &rx_frame, CAN_MTU);
-              if (len < 0)
+              if (len < 0) {
+                  if(sock->error_handler) {
+                      sock->error_handler(&rx_frame, errno);
+                  }
                   continue;
+              }
 
-              if (sock->reception_handler != NULL)
+              if (sock->reception_handler)
               {
                   sock->reception_handler(&rx_frame);
               }
 
-              if (sock->parser != NULL)
+              if (sock->parser)
               {
                   sock->parser->parse_frame(&rx_frame);
               }

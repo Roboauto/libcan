@@ -9,6 +9,7 @@ namespace libcan {
   class CANFrameParser
   {
     public:
+      virtual ~CANFrameParser();
       virtual void parse_frame(can_frame_t*);
   };
 
